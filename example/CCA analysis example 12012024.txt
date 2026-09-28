@@ -1,0 +1,98 @@
+CCA Analysis example
+
+
+#Here is the list of all the packages that I've used.
+#I'm sorry I can't remember exactly which of these are needed, because I always just load them all!
+
+
+library("vegan")
+library("devtools")
+library("ggvegan")
+library("BiodiversityR")
+library("BiocManager")
+library("dada2")
+library("dplyr")
+library("tidyverse")
+library("ggplot2")
+library("car")
+library("corrplot")
+library("MVN")
+library("factoextra")
+library("readxl")
+library("ggpubr")
+library("phyloseq")
+library("ggrepel")
+
+
+
+
+#### IMPORTANT!!!
+#The dataframes containing the microbial population data, and the other variables need to have the exact same sample names as row names!
+
+#####CCA
+
+# "bottle_vegan_pop_for_NMDS" is a dataframe containing the microbial population data, Rows = samples, Columns = relative abundance of each OTU
+bottle_ca <- cca(bottle_vegan_pop_for_NMDS) 
+
+
+
+#"bottle_chem_con2_14032023" is a dataframe containing the data for chemical and physical variables. Rows = samples, Columns = data
+#The envfit function only puts out vectors for variables for which the P value is less than 0.05
+envfit_test_ca_14032023 <- envfit(bottle_ca, bottle_chem_con2_14032023, permu = 999, na.rm = TRUE) 
+
+
+
+#This part is about extracting the vectors from the CCA data for use in ggplot graph. ggplot can't otherwise use it (or it is beyond my skills). The rest of this portion is about adjusting the lengts of the vectors so that they look better in the graph.
+test14032023_arrows <- as.data.frame(envfit_test_ca_14032023$vectors$arrows)
+test14032023_r <- scores(envfit_test_ca_14032023$vectors$r)
+test14032023_r <- sqrt(test14032023_r)
+test14032023_arrows$CA1 <- test14032023_arrows$CA1 / test14032023_r * 1
+test14032023_arrows$CA2 <- test14032023_arrows$CA2 / test14032023_r * 1
+test14032023_arrows$varNames <- rownames(test14032023_arrows)
+
+
+
+
+#Trying to extract the bottle_ca scores for species and sites so that I can use the ggplot function because it has better functionality 
+bottle_ca_scores <- scores(bottle_ca)
+bottle_ca_scores_sites <- as.data.frame(bottle_ca_scores$sites)
+
+
+
+#Here I am putting in some data to the data frame so that I can group them in ggplot.
+#You can also change the sample names here if they are so large they overlap in the graph. 
+bottle_ca_scores_sites$Source_type <- c("Agricultural", "Agricultural", "Agricultural","Agricultural", "Agricultural", "Agricultural","Agricultural", "Agricultural", "Agricultural", "Non-agricultural", "Non-agricultural", "Non-agricultural", "Non-agricultural", "Non-agricultural", "Non-agricultural", "Agricultural", "Agricultural", "Agricultural" )
+bottle_ca_scores_sites$Source_type <- factor(bottle_ca_scores_sites$Source_type, levels = c("Agricultural", "Non-agricultural"))
+
+bottle_ca_scores_sites$Sample_source <- c("UAG","UAG","UAG","JAG","JAG","JAG","KAG","KAG","KAG","KFR","KFR","KFR","KAF","KAF","KAF","RAG","RAG","RAG")
+bottle_ca_scores_sites$Sample_source <- factor(bottle_ca_scores_sites$Sample_source, levels = c("UAG", "JAG", "RAG", "KAG", "KAF", "KFR"))
+
+
+
+#This is the ggplot script
+bottle_ca_scores_sites %>%
+  ggplot() +
+  geom_point(aes(x = CA1, y = CA2, color = Sample_source), size = 5) +
+  geom_text(aes(x = CA1, y = CA2, label = Sample_source, vjust = -0.7), check_overlap = TRUE) +
+  labs(x = "CA1",
+       y = "CA2",
+       shape = "Source_type") +
+  theme_classic() +
+  geom_segment(data = test14032023_arrows,
+               mapping = aes(x = 0, y = 0, xend = CA1, yend = CA2), color="blue") +
+  geom_label_repel(data = test14032023_arrows,
+            mapping = aes(x = CA1, y = CA2, label = varNames), color="blue") +
+  #geom_point(data = bottle_cent, aes(x = NMDS1, y = NMDS2, size = 6)) +
+  stat_ellipse(data = bottle_ca_scores_sites, alpha = 0.7, aes(x = CA1, y = CA2, group = Source_type, linetype = Source_type)) +
+  labs(x = "CA1",
+       y = "CA2",
+       linetype = "Soil land use",
+       color = "Site") +
+  theme_classic() +
+  theme(legend.key.size = unit(0.5, "cm"),
+        legend.position = c(0.90, 0.35),
+        legend.background = element_rect(fill = "white",
+                                         color = "black"),
+        legend.margin = margin(t = 6, r = 2, b = 3, l = 3))
+  
+

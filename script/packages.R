@@ -1,0 +1,75 @@
+#load packages#####
+# install.packages('gasfluxes')
+
+library(gasfluxes)
+
+library("writexl")
+library("ggplot2")
+library("readxl")
+
+
+library(broom)
+library(carData)
+library(car)
+library(dbplyr)
+library(dplyr)
+library(dtplyr)
+library(stats)
+library(emmeans)
+library(tibble)
+library(ggpubr)
+library(ggraph)
+library(ggtext)
+library(ggpmisc)
+library(glue)
+library(grid)
+library(lmtest)
+library(MASS)
+library(multcomp)
+library(multcompView)
+library(nlme)
+library(patchwork)
+library(plotly)
+library(tidyverse)
+library(RColorBrewer)
+library(ggpattern)
+library(stringr)
+library(ggrepel)
+library(cowplot)
+library(patchwork)
+
+library("vegan")
+library("devtools")
+# library("ggvegan")
+library("BiodiversityR")
+library("BiocManager")
+# library("dada2")
+library("dplyr")
+library("tidyverse")
+library("ggplot2")
+library("car")
+library("corrplot")
+library("MVN")
+library("factoextra")
+library("readxl")
+library("ggpubr")
+library("phyloseq")
+library("ggrepel")
+library(dplyr)
+library(lme4)
+library(mgcv)
+library(ggbreak)
+library(Hmisc)
+library(linkET)
+library(psych)
+
+# options(scipen = 0) #kai
+options(scipen = 999) #guan
+
+theme_set(theme_classic())
+
+# install.packages("hms")
+library(hms)
+
+
+
